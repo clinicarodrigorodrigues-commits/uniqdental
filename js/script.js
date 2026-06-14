@@ -86,20 +86,10 @@
     setTimeout(show, 8000);
   }
 
-  /* ---------- CTA click tracking ---------- */
+  /* ---------- CTA click tracking (dataLayer → GTM centraliza tudo) ---------- */
   document.querySelectorAll('[data-cta]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const ctaName = btn.dataset.cta;
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'click_whatsapp', {
-          event_category: 'CTA',
-          event_label: ctaName,
-          cta_location: ctaName,
-        });
-      }
-      if (typeof window.fbq === 'function') {
-        window.fbq('track', 'Lead', { content_name: ctaName });
-      }
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'cta_click', cta_location: ctaName });
     });
@@ -117,9 +107,6 @@
       thresholds.forEach((t) => {
         if (pct >= t && !fired.has(t)) {
           fired.add(t);
-          if (typeof window.gtag === 'function') {
-            window.gtag('event', 'scroll_depth', { percent: t });
-          }
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({ event: 'scroll_depth', percent: t });
         }
