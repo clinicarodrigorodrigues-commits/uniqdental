@@ -127,6 +127,28 @@
       errEl.hidden = false;
     };
 
+    /* ---------- Máscara de telefone BR: (DD) XXXXX-XXXX ---------- */
+    // Extrai só os dígitos do número, tratando o DDI (+55) sem bagunçar o DDD.
+    const onlyDigitsBR = (value) => {
+      let d = (value || '').replace(/\D/g, '');
+      // Só remove "55" se for DDI (mais de 11 dígitos). Em 11 dígitos, "55" é DDD válido.
+      if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+      return d.slice(0, 11); // máximo: DDD (2) + celular (9)
+    };
+    const formatPhoneBR = (value) => {
+      const d = onlyDigitsBR(value);
+      if (d.length === 0) return '';
+      if (d.length <= 2) return '(' + d;
+      if (d.length <= 7) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+      return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+    };
+    const telInput = document.getElementById('lead-telefone');
+    if (telInput) {
+      telInput.addEventListener('input', () => {
+        telInput.value = formatPhoneBR(telInput.value);
+      });
+    }
+
     const openModal = (ctaName) => {
       currentCta = ctaName || 'desconhecido';
       lastFocused = document.activeElement;
@@ -178,7 +200,7 @@
       const telefone = leadForm.telefone.value.trim();
       const necChecked = leadForm.querySelector('input[name="necessidade"]:checked');
       const necessidade = necChecked ? necChecked.value : '';
-      const digits = telefone.replace(/\D/g, '');
+      const digits = onlyDigitsBR(telefone); // limpo, DDD+celular (DDI tratado)
 
       if (nome.length < 2) {
         showErr('Por favor, digite seu nome.');
@@ -195,7 +217,7 @@
       const payload = Object.assign(
         {
           nome: nome,
-          telefone: telefone,
+          telefone: digits,
           necessidade: necessidade || '(não informado)',
           origem_cta: currentCta,
           pagina: location.href,
