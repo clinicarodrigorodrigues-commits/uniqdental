@@ -1,0 +1,21 @@
+# Landing Page UniQ Dental Studio
+# ATENCAO: este site JA ESTAVA NO AR servindo a raiz do repo, sem netlify.toml.
+# O publish = "." abaixo declara EXPLICITAMENTE o comportamento que ja existia,
+# pra adicionar as functions sem mudar de onde o site e servido.
+
+[build]
+  publish = "."
+  # sem comando de build: o site e estatico puro (HTML/CSS/JS)
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Roteamento por HOST (mesmo padrao do relampago-router do painel).
+# POR QUE existe: o r.js resolve link curto na RAIZ (lp.dominio/<slug>) e, quando o slug
+# e desconhecido, redireciona pra home (r.js:53). Um catch-all /* cru faria TODA URL
+# inexistente do www virar 302 pra home, matando o 404 legitimo do site que ja converte.
+# O edge function abaixo so reescreve quando o host e o lp., entao o www fica intocado.
+[[edge_functions]]
+  path = "/*"
+  function = "lp-router"
