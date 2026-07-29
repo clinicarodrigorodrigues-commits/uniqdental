@@ -1,0 +1,34 @@
+functionsDirectory = "/private/tmp/claude-501/-Users-nathanferreira-Library-CloudStorage-OneDrive-Pessoal--rea-de-Trabalho-Tr-fego-Pago-Clientes-UNIQ-Landing-Page-02-Landing-Page-Cl-nica-Dental-Studio/f3e1243b-0d2e-4712-a1de-201224fb7cc0/scratchpad/lp-uniq/netlify/functions"
+functionsDirectoryOrigin = "config"
+plugins = []
+headers = []
+redirects = []
+
+[build]
+edge_functions = "/private/tmp/claude-501/-Users-nathanferreira-Library-CloudStorage-OneDrive-Pessoal--rea-de-Trabalho-Tr-fego-Pago-Clientes-UNIQ-Landing-Page-02-Landing-Page-Cl-nica-Dental-Studio/f3e1243b-0d2e-4712-a1de-201224fb7cc0/scratchpad/lp-uniq/netlify/edge-functions"
+publish = "/private/tmp/claude-501/-Users-nathanferreira-Library-CloudStorage-OneDrive-Pessoal--rea-de-Trabalho-Tr-fego-Pago-Clientes-UNIQ-Landing-Page-02-Landing-Page-Cl-nica-Dental-Studio/f3e1243b-0d2e-4712-a1de-201224fb7cc0/scratchpad/lp-uniq"
+publishOrigin = "config"
+functions = "/private/tmp/claude-501/-Users-nathanferreira-Library-CloudStorage-OneDrive-Pessoal--rea-de-Trabalho-Tr-fego-Pago-Clientes-UNIQ-Landing-Page-02-Landing-Page-Cl-nica-Dental-Studio/f3e1243b-0d2e-4712-a1de-201224fb7cc0/scratchpad/lp-uniq/netlify/functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[edge_functions]]
+path = "/*"
+function = "lp-router"
+
+[functions]
+
+[functions."*"]
+node_bundler = "esbuild"

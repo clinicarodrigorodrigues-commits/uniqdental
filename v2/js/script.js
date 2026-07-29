@@ -291,4 +291,47 @@
       window.scrollTo({ top, behavior: 'smooth' });
     });
   });
+
+  /* ---------- NF · atribuicao: cola utm + click ids + vid no link do Tintim ----------
+     POR QUE: o Tintim manda no webhook o que vier na query do link. O porteiro do painel usa
+     esses campos pra casar o lead com o clique do anuncio. Sem isso a origem vira "direto".
+
+     DECISOES DE SEGURANCA (o molde faz diferente e e mais arriscado):
+     1. Parte do href QUE JA ESTA no HTML, nao de uma config. No v2.js do molde o link vem de
+        CFG.TINTIM_LINK e, se a config faltar, o href vira "#" e MATA 100% da conversao.
+        Aqui, se qualquer coisa falhar, o link original continua intacto.
+     2. So ACRESCENTA parametros: nao troca dominio nem caminho. Os gatilhos do GTM sao
+        "Click URL CONTAINS whatsapp" e "CONTAINS https://wa.me/", entao continuam valendo.
+     3. Nao sobrescreve parametro que ja exista no href.
+     4. Roda dentro de try/catch por link: erro em um nao afeta os outros.                     */
+  (function nfAtribuicao() {
+    var CHAVES = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid"];
+    // 1o toque manda: guarda o que veio na URL e reusa nas proximas paginas da mesma sessao
+    var dados = {};
+    try {
+      var q = new URLSearchParams(location.search), achou = false;
+      CHAVES.forEach(function (k) { var v = q.get(k); if (v) { dados[k] = v; achou = true; } });
+      if (achou) localStorage.setItem("nf_atrib", JSON.stringify(dados));
+      else dados = JSON.parse(localStorage.getItem("nf_atrib") || "{}");
+    } catch (e) { dados = {}; }
+
+    function enriquecer(a) {
+      try {
+        var href = a.getAttribute("href") || "";
+        if (!/tintim\.link|wa\.me|api\.whatsapp\.com/i.test(href)) return;   // so links de WhatsApp
+        var u = new URL(href, location.origin);
+        CHAVES.forEach(function (k) { if (dados[k] && !u.searchParams.has(k)) u.searchParams.set(k, dados[k]); });
+        if (window.LP_VISITOR_ID && !u.searchParams.has("vid")) u.searchParams.set("vid", window.LP_VISITOR_ID);
+        a.setAttribute("href", u.toString());
+      } catch (e) { /* link intacto */ }
+    }
+    function aplicar() { document.querySelectorAll('a[href]').forEach(enriquecer); }
+    aplicar();
+    // o #wa-redirect da v2 e clicado por JS: reenriquece na hora do clique (o vid pode ter chegado depois)
+    document.addEventListener("click", function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
+      if (a) enriquecer(a);
+    }, true);
+  })();
+
 })();
