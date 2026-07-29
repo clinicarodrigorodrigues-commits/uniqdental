@@ -19,8 +19,12 @@ export default async (request, context) => {
   const ehAsset = /\.[a-z0-9]+$/i.test(p);
   if (p === "/" || ehAsset || p.startsWith("/.netlify")) return context.next();
 
-  // /<slug> -> a function que resolve o link, conta o clique e redireciona com as UTMs
-  return context.rewrite("/.netlify/functions/r" + p);
+  // /<slug> -> a function que resolve o link, conta o clique e redireciona com as UTMs.
+  // O slug vai como QUERY PARAM, nao no path: o resolveSlug do r.js (linha 35) ZERA o path
+  // quando ele contem "/.netlify/functions/", entao reescrever pra /.netlify/functions/r/<slug>
+  // faz o slug se perder e todo link cair na home sem UTM. Medido em producao em 29/07/2026.
+  const slug = p.replace(/^\/+/, "").split("/")[0];
+  return context.rewrite("/.netlify/functions/r?slug=" + encodeURIComponent(slug));
 };
 
 export const config = { path: "/*" };
