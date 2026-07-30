@@ -327,10 +327,38 @@
     }
     function aplicar() { document.querySelectorAll('a[href]').forEach(enriquecer); }
     aplicar();
+
+    /* EMQ: BEACON do clique -> /pre-lead do painel. O Tintim NAO repassa o vid do link (medido
+       29/07/2026: 0 de 371 webhooks), entao o casamento e por JANELA no porteiro. O beacon grava o
+       clique em nf_pre_leads com o que so o navegador tem: _fbp/_fbc (cookies do Pixel) e, no
+       servidor, IP + user agent (headers). Sem isso o evento CAPI do painel sai sem esses sinais.
+       sendBeacon text/plain = requisicao simples (sem preflight); fallback: fetch keepalive no-cors. */
+    function cookie(n) { try { var m = document.cookie.match("(^|; )" + n + "=([^;]+)"); return m ? decodeURIComponent(m[2]) : null; } catch (e) { return null; } }
+    var beaconFoi = false;
+    function beaconPreLead() {
+      if (beaconFoi) return; beaconFoi = true;   // 1 por pageload; cliques repetidos = mesmo vid, o porteiro dedupa
+      var URL_PL = (window.LP_CONFIG || {}).NF_PRELEAD_URL || "";
+      if (!URL_PL) return;
+      try {
+        var p = JSON.stringify({
+          vid: window.LP_VISITOR_ID || null,
+          fbp: cookie("_fbp"), fbc: cookie("_fbc"),
+          fbclid: dados.fbclid || null, gclid: dados.gclid || null,
+          utm_source: dados.utm_source || null, utm_medium: dados.utm_medium || null,
+          utm_campaign: dados.utm_campaign || null, utm_term: dados.utm_term || null, utm_content: dados.utm_content || null,
+          referrer: document.referrer || null, pagina_captura: location.href
+        });
+        if (navigator.sendBeacon && navigator.sendBeacon(URL_PL, new Blob([p], { type: "text/plain" }))) return;
+        fetch(URL_PL, { method: "POST", body: p, keepalive: true, mode: "no-cors" }).catch(function () {});
+      } catch (e) { /* rastreio nunca bloqueia o clique */ }
+    }
+
     // o #wa-redirect da v2 e clicado por JS: reenriquece na hora do clique (o vid pode ter chegado depois)
     document.addEventListener("click", function (ev) {
       var a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
-      if (a) enriquecer(a);
+      if (!a) return;
+      enriquecer(a);
+      if (/tintim\.link|wa\.me|api\.whatsapp\.com/i.test(a.getAttribute("href") || "")) beaconPreLead();
     }, true);
   })();
 
