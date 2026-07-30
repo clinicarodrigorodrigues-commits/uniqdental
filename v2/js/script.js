@@ -89,7 +89,7 @@
   /* ---------- Lead modal: CTA abre formulário → envio vira lead + WhatsApp ---------- */
   const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/i6y7z6lvn03o9cwsw1e4x1iimqj8iw36';
   const WHATSAPP_URL =
-    'https://tintim.link/whatsapp/ac8b19fb-a3a2-4fa4-a842-9f2de468631f/6a48a112-b0de-41d9-aee0-da2890797190';
+    'https://tintim.link/whatsapp/ac8b19fb-a3a2-4fa4-a842-9f2de468631f/ab84889b-b6b8-49d8-8a4e-1fe628396bc8';
 
   // captura UTMs + click IDs na chegada e guarda na sessão (sobrevive a scroll/reload)
   const TRACKING_KEYS = [
